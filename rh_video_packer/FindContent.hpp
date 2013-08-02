@@ -30,14 +30,14 @@ public:
         return path;
     }
 
-    bool operator < ( const Image & that ) const {
+    bool operator < ( const Video & that ) const {
 
         return this->path < that.path;
     }
 
     static bool IsVideoFile(const char * ext) {
 
-		static const char * exts[] = {
+		static const char *const exts[] = {
 			".bik",
 			".bk2",
 			".snut",
@@ -51,11 +51,11 @@ public:
 			".mov",
 		};
 		static const int size = sizeof(exts) / sizeof(exts[0]);
-		static const char * begin = exts;
-		static const char * end = exts + size;
+		static const char * const * begin = exts;
+		static const char * const * end = begin + size;
 
-		for(const char * itor = begin; itor != end; itor++)
-			if( strcasecmp(itor, ext) == 0)
+		for(const char * const * itor = begin; itor != end; itor++)
+			if( strcasecmp(*itor, ext) == 0)
 				return true;
 
 		return false;
@@ -111,7 +111,7 @@ private:
 			all.push_back( itor->GetFileName() );
 
 		for(Vector::const_iterator itor = subDirs.begin(); itor != subDirs.end(); itor++)
-			itor->AllVideoFiles( all );
+			itor->AddVideoFiles( all );
     }
 
     void Construct(const fs::path &full_path) {

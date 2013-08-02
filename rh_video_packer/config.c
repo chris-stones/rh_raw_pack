@@ -6,9 +6,9 @@
 #include <libimg.h>
 
 
-const char *argp_program_version = "rh_texture_packer 0.1";
+const char *argp_program_version = "rh_video_packer 0.1";
 const char *argp_program_bug_address = NULL; // "NULL";
-static char doc[] = "rh_texture_packer -- a program to generate texture atlas arrays.";
+static char doc[] = "rh_video_packer -- a program to package videos.";
 static char args_doc[] = "RESOURCE_ROOT_PATH";
 
 static struct argp_option options[] = {

@@ -3,6 +3,7 @@
 
 #include "file_header.h"
 #include "hash.h"
+#include "config.h"
 
 #include<vector>
 #include<string>
@@ -85,6 +86,9 @@ public:
 			hdr.file_ptr = ftell(file);
 			hdr.file_length = fs::file_size(*itor);
 			hmap[hdr.hash] = hdr;
+
+			if(!args.quiet)
+				printf("Adding:%s Hash:0x%08X Offset:0x%08X Length:0x%08X\n", resName.c_str(), hdr.hash, hdr.file_ptr, hdr.file_length);
 
 			FILE * f = fopen(itor->c_str(), "rb");
 			if(!f) {
