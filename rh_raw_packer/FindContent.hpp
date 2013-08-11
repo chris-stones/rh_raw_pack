@@ -1,5 +1,9 @@
 #pragma once
 
+#include "config.hpp"
+#include<string>
+#include<vector>
+
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
@@ -37,25 +41,8 @@ public:
 
     static bool IsVideoFile(const char * ext) {
 
-		static const char *const exts[] = {
-			".bik",
-			".bk2",
-			".snut",
-			".avi",
-			".mpeg",
-			".mpg",
-			".nut",
-			".mkv",
-			".ogv",
-			".ogg",
-			".mov",
-		};
-		static const int size = sizeof(exts) / sizeof(exts[0]);
-		static const char * const * begin = exts;
-		static const char * const * end = begin + size;
-
-		for(const char * const * itor = begin; itor != end; itor++)
-			if( strcasecmp(*itor, ext) == 0)
+		for(std::vector<std::string>::const_iterator itor = args.fileExtensions.begin(); itor != args.fileExtensions.end(); itor++)
+			if( strcasecmp(itor->c_str(), ext) == 0)
 				return true;
 
 		return false;

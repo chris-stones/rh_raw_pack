@@ -1,4 +1,4 @@
-#include "config.h"
+#include "config.hpp"
 
 #include <stdlib.h>
 #include <argp.h>
@@ -17,6 +17,7 @@ static struct argp_option options[] = {
   {"output",   'o', "FILE", 0,  "Output to FILE" },
   {"debug",    'D', 0,      OPTION_ARG_OPTIONAL,  "debug mode" },
   {"logfile",  'l', "FILE", 0,  "write log to FILE"},
+  {"include",  'i', "FILE EXT", 0, "file extentions to include" },
   { 0 }
 };
 
@@ -49,6 +50,31 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
       arguments->resources = arg;
       break;
 
+	case 'i':
+	{
+		std::string argString(arg);
+		std::size_t pos = 0;
+		std::size_t newPos = 0;
+
+		for(;;) {
+			newPos = argString.find_first_of(",",pos);
+			std::string ext;
+			if(newPos == std::string::npos)
+				ext = std::string(".") + std::string(arg + pos);
+			else
+				ext = std::string(".") + std::string(arg + pos, arg + newPos);
+
+			arguments->fileExtensions.push_back(ext);
+
+			if(newPos == std::string::npos)
+				break;
+
+			pos = newPos+1;
+		}
+
+		break;
+	}
+
     case ARGP_KEY_END:
       if (state->arg_num < 1 || !arguments->output_file)
         argp_usage (state);
@@ -62,11 +88,11 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 
 static struct argp argp = { options, parse_opt, args_doc, doc };
 
+arguments args;
+
 struct arguments read_args(int argc, char ** argv ) {
 
   struct arguments _args;
-
-  memset(&_args,0,sizeof _args);
 
   argp_parse (&argp, argc, argv, 0, 0, &_args);
 

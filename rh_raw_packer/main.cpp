@@ -7,7 +7,7 @@
 #include<vector>
 #include<string>
 
-#include "config.h"
+#include "config.hpp"
 #include "hash.h"
 #include "FindContent.hpp"
 #include "Output.hpp"

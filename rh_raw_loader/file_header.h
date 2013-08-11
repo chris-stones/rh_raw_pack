@@ -1,9 +1,8 @@
-
 #pragma once
 
-struct rhvpak_hdr {
+struct rhrpak_hdr {
 
-  char magic[16]; 				// "rockhopper.vpak"
+  char magic[16]; 				// "rockhopper.rpak"
   unsigned int version; 		// impl version
   unsigned int flags;			// flags
   unsigned int resources;		// number of videos
@@ -11,7 +10,7 @@ struct rhvpak_hdr {
   unsigned int hmap_ptr;		// pointer to rhvpak_hdr_hmap ( array length is rhvpak_hdr::resources )
 };
 
-struct rhvpak_hdr_hmap {
+struct rhrpak_hdr_hmap {
 
 	unsigned int hash;			// video name hash.
     unsigned int file_ptr;		// pointer to video file data.

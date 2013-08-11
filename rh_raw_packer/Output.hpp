@@ -3,7 +3,7 @@
 
 #include "file_header.h"
 #include "hash.h"
-#include "config.h"
+#include "config.hpp"
 
 #include<vector>
 #include<string>
@@ -62,7 +62,7 @@ public:
 		memset(&header, 0, sizeof header);
 
 		header.seed = seed;
-		strcpy(header.magic, "rockhopper.vpak");
+		strcpy(header.magic, "rockhopper.rpak");
 		header.resources = allVideos.size();
 
 		Write(header);
