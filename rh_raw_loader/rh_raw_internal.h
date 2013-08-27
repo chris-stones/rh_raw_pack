@@ -26,48 +26,6 @@
 	#include<android/asset_manager.h>
 #endif
 
-#define GL_GLEXT_PROTOTYPES 1
-
-#ifdef RH_TARGET_API_GLES2
-  #include <GLES2/gl2.h>
-  #include <GLES2/gl2ext.h>
-#else
-  #include <GL/gl.h>
-  #include <GL/glext.h>
-#endif
-
-#ifndef GL_TEXTURE_2D_ARRAY_EXT
-#define GL_TEXTURE_2D_ARRAY_EXT 0x8C1A
-#endif
-#ifndef GL_COMPRESSED_RGB_S3TC_DXT1_EXT
-#define GL_COMPRESSED_RGB_S3TC_DXT1_EXT  0x83F0
-#endif
-#ifndef GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
-#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT 0x83F1
-#endif
-#ifndef GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
-#define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT 0x83F2
-#endif
-#ifndef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
-#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
-#endif
-
-#ifdef RH_TARGET_API_GLES2
-
-  #define GL_COMPRESSED_TEX_IMAGE_3D 		glCompressedTexImage3DOES
-  #define GL_TEX_IMAGE_3D 			glTexImage3DOES
-  #define GL_TEX_SUMBIMAGE_3D 			glTexSubImage3DOES
-  #define GL_COMPRESSED_TEX_SUBIMAGE_3D		glCompressedTexSubImage3DOES
-
-#else
-
-  #define GL_COMPRESSED_TEX_IMAGE_3D 		glCompressedTexImage3D
-  #define GL_TEX_IMAGE_3D 			glTexImage3D
-  #define GL_TEX_SUMBIMAGE_3D 			glTexSubImage3D
-  #define GL_COMPRESSED_TEX_SUBIMAGE_3D 	glCompressedTexSubImage3D
-
-#endif
-
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -78,8 +36,7 @@
 #include "file_header.h"
 
 #ifdef __cplusplus
-
-class _rawpak_ctx;
+//class _rawpak_ctx;
 extern "C" {
 #endif //  __cplusplus
 
@@ -125,15 +82,18 @@ extern "C" {
 		return fopen(file, "rb");
 	}
 
-	// returns -1 on error.
+	// returns -1 on error. 0 on EOF, else, the bytes read.
 	static inline int _ReadAsset(AssetType * asset, void * ptr, size_t count) {
 
-		size_t r = fread(ptr, count, 1, asset);
+		size_t r = fread(ptr, 1, count, asset);
 
-		if(r == 1)
-			return count;
+		if(r == 0) {
+			if(feof(asset))
+				return 0;
+			return -1;
+		}
 
-		return -1;
+		return r;
 	}
 
 	static inline int _SeekAsset(AssetType * asset, off_t offset, int whence ) {
@@ -168,6 +128,9 @@ struct _rawpak_ctx {
 	struct _rawpak_type * loader;
 	struct rhrpak_hdr_hmap *hmap;
 	size_t pos;
+
+	void * avformat_buffer;
+	size_t avformat_buffer_size;
 };
 
 #ifdef __cplusplus
