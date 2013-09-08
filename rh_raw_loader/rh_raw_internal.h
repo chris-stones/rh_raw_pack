@@ -26,6 +26,7 @@
 	#include<android/asset_manager.h>
 #endif
 
+#include <unistd.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -42,7 +43,7 @@ extern "C" {
 
 	#ifdef RH_TARGET_OS_ANDROID
 	typedef AAsset 			AssetType;
-	typedef AAssetManager		AssetManagerType;
+	typedef AAssetManager	AssetManagerType;
 
 	static inline AssetType * _OpenAsset( AssetManagerType * manager, const char * file) {
 

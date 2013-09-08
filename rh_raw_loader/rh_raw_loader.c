@@ -1,7 +1,6 @@
 
 #include "rh_raw_internal.h"
 
-#include<stdlib.h>
 #include<assert.h>
 
 static int _open_failed(rh_rawpak_handle loader, int line) {
