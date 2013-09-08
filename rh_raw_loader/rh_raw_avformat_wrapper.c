@@ -8,7 +8,7 @@
 
 /*** INCLUDE FFMPEG ***************/
 #ifndef UINT64_C
-#define UINT64_C(c) (c ## ULL)
+//#define UINT64_C(c) (c ## ULL)
 #endif
 #ifdef __cplusplus
 extern "C" {
