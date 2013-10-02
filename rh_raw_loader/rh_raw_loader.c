@@ -10,33 +10,63 @@ static int _open_failed(rh_rawpak_handle loader, int line) {
 
 	if(loader) {
 		free(loader->hmap);
-		if(loader->asset)
-			_CloseAsset(loader->asset);
+		RHF_CLOSE(loader->file);
 		free(loader);
 	}
 	return -1;
 }
 
-int rh_rawpak_open(const char * file, rh_rawpak_handle * _loader) {
+static int _has_asset(rh_rawpak_handle  _loader) {
+
+	if(!_loader)
+		return 0;
+	if(_loader->file.asset_filesystem)
+		return 1;
+#ifdef __ANDROID__
+	if(_loader->asset_android)
+		return 1;
+#endif
+	return 0;
+}
+
+static int _setup_access_functionptrs(rh_rawpak_handle  _loader) {
+
+#ifdef __ANDROID__
+	if(loader->flags & RH_RAWPAK_ANDROID_APK) {
+
+		_setup_file_android(&_loader->file);
+		return 0;
+	}
+#endif
+
+	_setup_file_filesystem(&_loader->file);
+	return 0;
+}
+
+int rh_rawpak_open(const char * file, rh_rawpak_handle * _loader, int flags) {
 
 	rh_rawpak_handle loader = NULL;
 
 	if((loader = calloc(1, sizeof(struct _rawpak_type))) == NULL)
 		return _open_failed(loader, __LINE__);
 
-	loader->assetManager = _GetAssetManager();
+	loader->flags = flags;
 
-	if((loader->asset = _OpenAsset( loader->assetManager, file)) == NULL)
+	_setup_access_functionptrs(loader);
+
+	RHF_GETMGR(loader->file);
+
+	if((RHF_OPEN(loader->file, file)) != 0)
 		return _open_failed(loader, __LINE__);
-	if((_ReadAsset(loader->asset, &loader->header, sizeof loader->header)) != sizeof loader->header)
+	if((RHF_READ(loader->file, &loader->header, sizeof loader->header)) != sizeof loader->header)
 		return _open_failed(loader, __LINE__);
 	if( strncasecmp("rockhopper.rpak", loader->header.magic, 16) != 0)
 		return _open_failed(loader, __LINE__);
 	if((loader->hmap = malloc(loader->header.resources * sizeof(struct rhrpak_hdr_hmap)))==NULL)
 		return _open_failed(loader, __LINE__);
-	if( _SeekAsset(loader->asset, loader->header.hmap_ptr, SEEK_SET) == -1 )
+	if( RHF_SEEK(loader->file, loader->header.hmap_ptr, SEEK_SET) == -1 )
 		return _open_failed(loader, __LINE__);
-	if( _ReadAsset(loader->asset, loader->hmap, sizeof(struct rhrpak_hdr_hmap) * loader->header.resources ) != sizeof(struct rhrpak_hdr_hmap) * loader->header.resources )
+	if( RHF_READ(loader->file, loader->hmap, sizeof(struct rhrpak_hdr_hmap) * loader->header.resources ) != sizeof(struct rhrpak_hdr_hmap) * loader->header.resources )
 		return _open_failed(loader, __LINE__);
 
 	if(pthread_mutex_init(&loader->monitor, NULL) != 0) {
@@ -53,8 +83,7 @@ int rh_rawpak_close(rh_rawpak_handle loader) {
 
 	if(loader) {
 		free(loader->hmap);
-		if(loader->asset)
-			_CloseAsset(loader->asset);
+		RHF_CLOSE(loader->file);
 		pthread_mutex_destroy(&loader->monitor);
 		free(loader);
 	}
@@ -149,18 +178,18 @@ int rh_rawpak_close_ctx(rh_rawpak_ctx ctx ) {
 // returns bytes read, 0 on EOF, -1 on err.
 int rh_rawpak_read(void* data, size_t size, size_t nbemb, rh_rawpak_ctx ctx ) {
 
-	if(!data || !ctx || !ctx->hmap || !ctx->loader || !ctx->loader->asset )
+	if(!data || !ctx || !ctx->hmap || !ctx->loader || !_has_asset(ctx->loader) )
 		return -1;
 
 	if(pthread_mutex_lock(&ctx->loader->monitor) == 0) {
 
 		int err = 0;
 
-		if( _SeekAsset( ctx->loader->asset, ctx->hmap->file_ptr + ctx->pos, SEEK_SET ) == -1 )
+		if( RHF_SEEK(ctx->loader->file, ctx->hmap->file_ptr + ctx->pos, SEEK_SET ) == -1 )
 			err = -1;
 
 		if( !err )
-			err = _ReadAsset(ctx->loader->asset, data, size * nbemb);
+			err = RHF_READ(ctx->loader->file, data, size * nbemb);
 
 		pthread_mutex_unlock(&ctx->loader->monitor);
 
@@ -181,7 +210,7 @@ int rh_rawpak_read(void* data, size_t size, size_t nbemb, rh_rawpak_ctx ctx ) {
 
 int rh_rawpak_seek(rh_rawpak_ctx ctx, long offset, int whence) {
 
-	if(!ctx || !ctx->loader || !ctx->loader->asset || !ctx->hmap)
+	if(!ctx || !ctx->loader || !_has_asset(ctx->loader) || !ctx->hmap)
 		return -1;
 
 	switch(whence) {

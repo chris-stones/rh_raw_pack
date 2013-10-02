@@ -58,8 +58,6 @@ int rh_rawpak_open_avformatctx(rh_rawpak_ctx ctx, size_t internalBufferSize, voi
 	AVIOContext* pIOCtx;
 	int probedBytes = 0;
 
-	printf("rh_rawpak_open_avformatctx()\n");
-
 	if(!ctx || !format_ctx)
 		return -1;
 
@@ -115,8 +113,6 @@ int rh_rawpak_open_avformatctx(rh_rawpak_ctx ctx, size_t internalBufferSize, voi
 	probeData.filename = "";
 
 	pCtx->iformat = av_probe_input_format(&probeData, 1);
-
-	printf("input format %s %s\n",pCtx->iformat->name, pCtx->iformat->long_name );
 
 	pCtx->flags = AVFMT_FLAG_CUSTOM_IO;
 

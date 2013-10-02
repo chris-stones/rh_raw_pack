@@ -5,13 +5,22 @@
 extern "C" {
 #endif
 
+#define RH_RAWPAK_FILESYSTEM	0x01
+#define RH_RAWPAK_ANDROID_APK	0x02
+#ifdef __ANDROID__
+#define RH_RAWPAK_APP RH_RAWPAK_ANDROID_APK
+#endif
+#ifndef RH_RAWPAK_APP
+#define RH_RAWPAK_APP RH_RAWPAK_FILESYSTEM
+#endif
+
 struct _rawpak_type;
 typedef struct _rawpak_type * rh_rawpak_handle;
 
 struct _rawpak_ctx;
 typedef struct _rawpak_ctx * rh_rawpak_ctx;
 
-int rh_rawpak_open 			(const char * rawpak_file, rh_rawpak_handle * handle);
+int rh_rawpak_open 			(const char * rawpak_file, rh_rawpak_handle * handle, int flags);
 int rh_rawpak_close			(rh_rawpak_handle handle);
 
 int rh_rawpak_open_ctx		(rh_rawpak_handle handle, const char * name, rh_rawpak_ctx * ctx );

@@ -22,10 +22,6 @@
 	#define LOGE(...) ((void)printf(__VA_ARGS__))
 #endif
 
-#ifdef RH_TARGET_OS_ANDROID
-	#include<android/asset_manager.h>
-#endif
-
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -34,104 +30,34 @@
 
 #include "rh_raw_loader.h"
 #include "file_header.h"
+#include "rh_file.h"
 
 #ifdef __cplusplus
-//class _rawpak_ctx;
 extern "C" {
 #endif //  __cplusplus
 
-	#ifdef RH_TARGET_OS_ANDROID
-	typedef AAsset 			AssetType;
-	typedef AAssetManager		AssetManagerType;
 
-	static inline AssetType * _OpenAsset( AssetManagerType * manager, const char * file) {
+	struct _rawpak_type {
 
-		return AAssetManager_open( manager, file, AASSET_MODE_STREAMING);
-	}
+		struct rhrpak_hdr 		header;
+		struct rhrpak_hdr_hmap *hmap;
 
-	static inline int _ReadAsset(AssetType * asset, void * ptr, size_t count) {
+		pthread_mutex_t monitor;
 
-		return AAsset_read(asset, ptr, count);
-	}
+		int flags;
 
-	// returns -1 on error.
-	static inline int _SeekAsset(AssetType * asset, off_t offset, int whence ) {
+		rh_file_t file;
+	};
 
-		return AAsset_seek(asset, offset, whence);
-	}
+	struct _rawpak_ctx {
 
-	static inline void _CloseAsset(AssetType * asset) {
+		struct _rawpak_type * loader;
+		struct rhrpak_hdr_hmap *hmap;
+		size_t pos;
 
-		AAsset_close(asset);
-	}
-
-	static inline AssetManagerType * _GetAssetManager() {
-
-	  /*** MEGGA HACK! ***/
-
-	  extern AAssetManager * __rh_hack_get_android_asset_manager();
-
-	  return __rh_hack_get_android_asset_manager();
-	}
-#else
-	typedef FILE	AssetType;
-	typedef void	AssetManagerType;
-
-	static inline AssetType * _OpenAsset( AssetManagerType * manager, const char * file) {
-
-		return fopen(file, "rb");
-	}
-
-	// returns -1 on error. 0 on EOF, else, the bytes read.
-	static inline int _ReadAsset(AssetType * asset, void * ptr, size_t count) {
-
-		size_t r = fread(ptr, 1, count, asset);
-
-		if(r == 0) {
-			if(feof(asset))
-				return 0;
-			return -1;
-		}
-
-		return r;
-	}
-
-	static inline int _SeekAsset(AssetType * asset, off_t offset, int whence ) {
-
-		return fseek(asset, offset, whence);
-	}
-
-	static inline void _CloseAsset(AssetType * asset) {
-
-		fclose(asset);
-	}
-
-	static inline AssetManagerType * _GetAssetManager() {
-
-	  return NULL;
-	}
-#endif
-
-struct _rawpak_type {
-
-	struct rhrpak_hdr 		header;
-	struct rhrpak_hdr_hmap *hmap;
-
-	AssetManagerType * assetManager;
-	AssetType * asset;
-
-	pthread_mutex_t monitor;
-};
-
-struct _rawpak_ctx {
-
-	struct _rawpak_type * loader;
-	struct rhrpak_hdr_hmap *hmap;
-	size_t pos;
-
-	void * avformat_buffer;
-	size_t avformat_buffer_size;
-};
+		void * avformat_buffer;
+		size_t avformat_buffer_size;
+	};
 
 #ifdef __cplusplus
 }
