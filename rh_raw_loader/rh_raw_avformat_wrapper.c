@@ -8,7 +8,7 @@
 
 /*** INCLUDE FFMPEG ***************/
 #ifndef UINT64_C
-#define UINT64_C(c) (c ## ULL)
+//#define UINT64_C(c) (c ## ULL)
 #endif
 #ifdef __cplusplus
 extern "C" {
@@ -67,7 +67,7 @@ int rh_rawpak_open_avformatctx(rh_rawpak_ctx ctx, size_t internalBufferSize, voi
 		return -1;
 
 	pIOCtx = avio_alloc_context(
-		ctx->avformat_buffer, ctx->avformat_buffer_size,
+		(unsigned char*)ctx->avformat_buffer, ctx->avformat_buffer_size,
 		0,
 		ctx,
 		&_read_func,

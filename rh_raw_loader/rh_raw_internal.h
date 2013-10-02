@@ -22,6 +22,8 @@
 	#define LOGE(...) ((void)printf(__VA_ARGS__))
 #endif
 
+#include <unistd.h>
+
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
