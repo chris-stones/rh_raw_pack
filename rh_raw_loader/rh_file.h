@@ -67,8 +67,10 @@ extern "C" {
 
 	static inline int _CloseAsset_android(rh_file_t * p) {
 
-		if(p->asset_android)
+		if(p->asset_android) {
 			AAsset_close(p->asset_android);
+			p->asset_android = NULL;
+		}
 
 		return 0;
 	}
@@ -122,8 +124,10 @@ extern "C" {
 
 	static inline int _CloseAsset_filesystem(rh_file_t * p) {
 
-		if(p->asset_filesystem)
+		if(p->asset_filesystem) {
 			fclose(p->asset_filesystem);
+			p->asset_filesystem = NULL;
+		}
 
 		return 0;
 	}
