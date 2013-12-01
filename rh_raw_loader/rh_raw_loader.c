@@ -195,7 +195,7 @@ int rh_rawpak_read(void* data, size_t size, size_t nbemb, rh_rawpak_ctx ctx ) {
 		if(err < 0)
 			return err;
 
-		ctx->pos += size * nbemb;
+		ctx->pos += size * err;
 
 		if(ctx->pos > ctx->hmap->file_length ) {
 			ctx->pos = ctx->hmap->file_length;
