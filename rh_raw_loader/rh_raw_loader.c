@@ -22,7 +22,7 @@ static int _has_asset(rh_rawpak_handle  _loader) {
 	if(_loader->file.asset_filesystem)
 		return 1;
 #ifdef __ANDROID__
-	if(_loader->asset_android)
+	if(_loader->file.asset_android)
 		return 1;
 #endif
 	return 0;
@@ -31,7 +31,7 @@ static int _has_asset(rh_rawpak_handle  _loader) {
 static int _setup_access_functionptrs(rh_rawpak_handle  _loader) {
 
 #ifdef __ANDROID__
-	if(loader->flags & RH_RAWPAK_ANDROID_APK) {
+	if(_loader->flags & RH_RAWPAK_ANDROID_APK) {
 
 		_setup_file_android(&_loader->file);
 		return 0;
