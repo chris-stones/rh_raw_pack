@@ -196,7 +196,7 @@ int rh_rawpak_read(void* data, size_t size, size_t nbemb, rh_rawpak_ctx ctx ) {
 			err = RHF_READ(ctx->loader->file, data, size * nbemb);
 			if(err>0)
 				err /= size; // convert bytes read to members read.
-			printf("rh_rawpak_read %d * %d = %d\n", size, nbemb, err);
+//			printf("rh_rawpak_read %d * %d = %d\n", size, nbemb, err);
 		}
 
 		pthread_mutex_unlock(&ctx->loader->monitor);
