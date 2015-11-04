@@ -174,7 +174,7 @@ int rh_rawpak_close_ctx(rh_rawpak_ctx ctx ) {
 	return -1;
 }
 
-// returns bytes read, 0 on EOF, -1 on err.
+// Apes fread
 int rh_rawpak_read(void* data, size_t size, size_t nbemb, rh_rawpak_ctx ctx ) {
 
 	if(!data || !ctx || !ctx->hmap || !ctx->loader || !_has_asset(ctx->loader) ) {
@@ -194,6 +194,8 @@ int rh_rawpak_read(void* data, size_t size, size_t nbemb, rh_rawpak_ctx ctx ) {
 
 		if( !err ) {
 			err = RHF_READ(ctx->loader->file, data, size * nbemb);
+			if(err>0)
+				err /= size; // convert bytes read to members read.
 			printf("rh_rawpak_read %d * %d = %d\n", size, nbemb, err);
 		}
 
