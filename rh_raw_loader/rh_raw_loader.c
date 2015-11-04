@@ -177,18 +177,25 @@ int rh_rawpak_close_ctx(rh_rawpak_ctx ctx ) {
 // returns bytes read, 0 on EOF, -1 on err.
 int rh_rawpak_read(void* data, size_t size, size_t nbemb, rh_rawpak_ctx ctx ) {
 
-	if(!data || !ctx || !ctx->hmap || !ctx->loader || !_has_asset(ctx->loader) )
+	if(!data || !ctx || !ctx->hmap || !ctx->loader || !_has_asset(ctx->loader) ) {
+
+		printf("rh_rawpak_read BAD STATE\n");
 		return -1;
+	}
 
 	if(pthread_mutex_lock(&ctx->loader->monitor) == 0) {
 
 		int err = 0;
 
-		if( RHF_SEEK(ctx->loader->file, ctx->hmap->file_ptr + ctx->pos, SEEK_SET ) == -1 )
+		if( RHF_SEEK(ctx->loader->file, ctx->hmap->file_ptr + ctx->pos, SEEK_SET ) == -1 ) {
+			printf("rh_rawpak_read BAD SEEK\n");
 			err = -1;
+		}
 
-		if( !err )
+		if( !err ) {
 			err = RHF_READ(ctx->loader->file, data, size * nbemb);
+			printf("rh_rawpak_read %d * %d = %d\n", size, nbemb, err);
+		}
 
 		pthread_mutex_unlock(&ctx->loader->monitor);
 
@@ -199,11 +206,14 @@ int rh_rawpak_read(void* data, size_t size, size_t nbemb, rh_rawpak_ctx ctx ) {
 
 		if(ctx->pos > ctx->hmap->file_length ) {
 			ctx->pos = ctx->hmap->file_length;
-			return -1; // read past end of embedded file.
+			printf("rh_rawpak_read read past end of embedded file\n");
+			return -1;
 		}
 
 		return err;
 	}
+
+	printf("rh_rawpak_read lock failed");
 	return -1;
 }
 
